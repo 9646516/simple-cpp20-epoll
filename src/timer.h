@@ -22,15 +22,12 @@ struct TimerAwaiter {
 
     explicit TimerAwaiter(int _fd) : fd(_fd) {}
 
-    bool await_ready() const noexcept { return fd > 0; }
+    bool await_ready() const noexcept { return false; }
 
     void await_resume() noexcept {
-        static uint64_t exp;
-        read(fd, &exp, sizeof(uint64_t));
-        close(fd);
-        fd = -1;
         auto loop = get_event_loop();
         loop->remove_event(fd);
+        close(fd);
     }
 
     template<typename T>
